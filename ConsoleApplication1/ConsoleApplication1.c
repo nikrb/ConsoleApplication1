@@ -17,7 +17,7 @@ void insertKeyValuePair(KVPAIR **head, long key, const char *val) {
     }
 
     newPair->key = key;
-    newPair->size = strlen(val) + 1; // Include the null terminator
+    newPair->size = strlen(val);
     newPair->val = (char *)malloc(newPair->size);
     if (newPair->val == NULL) {
         perror("Memory allocation failed");
@@ -35,7 +35,7 @@ void insertKeyValuePair(KVPAIR **head, long key, const char *val) {
 void printKeyValuePairs(KVPAIR *head) {
     KVPAIR *current = head;
     while (current != NULL) {
-        printf("Key: %ld, Value: %s\n", current->key, current->val);
+        printf("Key: %ld, Value: %.*s\n", current->key, current->size, current->val);
         current = current->next;
     }
 }
@@ -111,7 +111,7 @@ void printBufferContents(char* buffer, size_t buffer_size) {
         ptr += size;
 
         // Print the key, size, and value
-        printf("Key: %ld, Size: %u, Value: %s\n", key, size, value);
+        printf("Key: %ld, Size: %u, Value: %.*s\n", key, size, size, value);
         free(value);
     }
 }
