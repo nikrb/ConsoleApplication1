@@ -222,6 +222,33 @@ char* lookup2(KVPAIR* head, long key, char* result, unsigned int max_size) {
     return NULL;
 }
 
+void delete(KVPAIR** head, long key) {
+    KVPAIR* current = *head;
+    KVPAIR* prev = NULL;
+
+    // Traverse the list to find the key to delete
+    while (current != NULL && current->key != key) {
+        prev = current;
+        current = current->next;
+    }
+
+    // If the key is found, remove the node
+    if (current != NULL) {
+        // If the node to delete is the head
+        if (prev == NULL) {
+            *head = current->next;
+        }
+        else {
+            prev->next = current->next;
+        }
+
+        // Free memory allocated for the value and the node
+        free(current->val);
+        free(current);
+    }
+}
+
+
 /****************************************************************************
 *
 * End of Assignment code
@@ -278,6 +305,8 @@ int main() {
         // lookup allocates memory to create a null terminated copy of string value
         free(result);
     }
+    // test lookup 2 - we declare a char buffer for this version
+    //                  and we don't have to free any memory
     char str[32];
     result = lookup2(linked_list, 2, str, 32);
     if (result != NULL) {
@@ -290,6 +319,10 @@ int main() {
         printf("key 2 value: [%s]\n", result);
     }
 
+    // test the delete function
+    delete(&linked_list, 2);
+    // check we removed key 2
+    printKeyValuePairs(linked_list);
 
     // Free the memory
     freeKeyValueLinkedList(linked_list);
