@@ -17,7 +17,7 @@ void insertKeyValuePair(KVPAIR **head, long key, const char *val) {
     }
 
     newPair->key = key;
-    newPair->size = strlen(val);
+    newPair->size = (unsigned int)strlen(val);
     newPair->val = (char *)malloc(newPair->size);
     if (newPair->val == NULL) {
         perror("Memory allocation failed");
@@ -40,7 +40,7 @@ void printKeyValuePairs(KVPAIR *head) {
     }
 }
 
-void freeKeyValuePairs(KVPAIR *head) {
+void freeKeyValueLinkedList(KVPAIR *head) {
     while (head != NULL) {
         KVPAIR *temp = head;
         head = head->next;
@@ -116,14 +116,89 @@ void printBufferContents(char* buffer, size_t buffer_size) {
     }
 }
 
+/****************************************************************************
+* 
+* Assignment code
+* 
+****************************************************************************/
+
+KVPAIR* createKeyValuePairLink(KVPAIR* head, long key, const char* val, unsigned int size) {
+    KVPAIR* newPair = (KVPAIR*)malloc(sizeof(KVPAIR));
+    if (newPair == NULL) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    newPair->key = key;
+    newPair->size = size;
+    newPair->val = (char*)malloc(size);
+    if (newPair->val == NULL) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if (memcpy(newPair->val, val, size) == NULL) {
+        perror("Memory copy failed");
+        exit(EXIT_FAILURE);
+    }
+
+    newPair->next = head;
+    return newPair;
+}
+
+KVPAIR* deserialize(const char* buffer, size_t bufferSize) {
+    KVPAIR* head = NULL;
+    const char* ptr = buffer;
+
+    while (ptr < buffer + bufferSize) {
+        long key;
+        unsigned int size;
+
+        // Read the key (8 bytes)
+        memcpy(&key, ptr, sizeof(long));
+        ptr += sizeof(long);
+
+        // Read the size (4 bytes)
+        memcpy(&size, ptr, sizeof(unsigned int));
+        ptr += sizeof(unsigned int);
+
+        // Allocate memory for the value string
+        char* value = (char*)malloc(size);
+        if (value == NULL) {
+            perror("Memory allocation failed");
+            exit(EXIT_FAILURE);
+        }
+
+        // Read the value string
+        memcpy(value, ptr, size);
+        ptr += size;
+
+        // Insert the key-value pair into the linked list
+        head = createKeyValuePairLink(head, key, value, size);
+
+        // Free the dynamically allocated memory for value
+        free(value);
+    }
+
+    return head;
+}
+
+/****************************************************************************
+*
+* End of Assignment code
+*
+****************************************************************************/
+
+
 int main() {
+    // read some data from a csv file
     char filename[] = "key_value_pairs.txt";
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open the file");
         return EXIT_FAILURE;
     }
-
+    // populate a linked list with the data
     KVPAIR *head = NULL;
     long key;
     char val[256];
@@ -134,17 +209,32 @@ int main() {
 
     fclose(file);
 
-    // Print the key-value pairs
+    // Print the key-value pairs - check we have it correct
     printKeyValuePairs(head);
 
+    // create the memory buffer with the data that will be passed to the assignment
     size_t buffer_size;
     char* buffer = packPairsIntoBuffer(head, &buffer_size);
 
+    // check we created the buffer correctly
     printBufferContents(buffer, buffer_size);
 
-    // Free the allocated memory
+    // free our dummy link list before proceeding with assignment code
+    freeKeyValueLinkedList(head);
+
+    /**********************************************************************
+    * 
+    * now do the assignment code, create a linked list from the memory buffer
+    * 
+    * ********************************************************************/
+    KVPAIR* linked_list = deserialize(buffer, buffer_size);
+
+    // check our linked list
+    printKeyValuePairs(linked_list);
+
+    // Free the memory
+    freeKeyValueLinkedList(linked_list);
     free(buffer);
-    freeKeyValuePairs(head);
 
     return EXIT_SUCCESS;
 }
