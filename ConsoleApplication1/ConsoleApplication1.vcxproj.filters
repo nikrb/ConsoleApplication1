@@ -18,8 +18,16 @@
     <ClCompile Include="ConsoleApplication1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kv_store.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="key_value_pairs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="kv_store.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
