@@ -133,6 +133,7 @@ int main() {
     fclose(file);
 
     // Print the key-value pairs - check we have it correct
+    printf("linked list created from csv file\n");
     printKeyValuePairs(head);
 
     // create the memory buffer with the data that will be passed to the assignment
@@ -140,6 +141,7 @@ int main() {
     char* buffer = packPairsIntoBuffer(head, &buffer_size);
 
     // check we created the buffer correctly
+    printf("memory buffer contents\n");
     printBufferContents(buffer, buffer_size);
 
     // free our dummy link list before proceeding with assignment code
@@ -153,12 +155,13 @@ int main() {
     KVPAIR* linked_list = deserialize(buffer, buffer_size);
 
     // check our linked list
+    printf("deserialize function linked list created\n");
     printKeyValuePairs(linked_list);
 
     // test lookup
     char* result = lookup(linked_list, 2);
     if (result != NULL) {
-        printf("key 2 value: [%s]\n", result);
+        printf("lookup test - key 2 value: [%s]\n", result);
         // lookup allocates memory to create a null terminated copy of string value
         free(result);
     }
@@ -167,18 +170,19 @@ int main() {
     char str[32];
     result = lookup2(linked_list, 2, str, 32);
     if (result != NULL) {
-        printf("key 2 value: [%s]\n", result);
+        printf("lookup2 test - key 2 value: [%s]\n", result);
     }
     // check truncation works correctly for lookup2
     char str2[3];
     result = lookup2(linked_list, 2, str2, 3);
     if (result != NULL) {
-        printf("key 2 value: [%s]\n", result);
+        printf("lookup2 truncation test - key 2 value: [%s]\n", result);
     }
 
     // test the delete function
     delete(&linked_list, 2);
     // check we removed key 2
+    printf("check key 2 deleted from list\n");
     printKeyValuePairs(linked_list);
 
     // Free the memory
