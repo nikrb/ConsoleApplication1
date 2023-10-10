@@ -183,6 +183,45 @@ KVPAIR* deserialize(const char* buffer, size_t bufferSize) {
     return head;
 }
 
+char* makeNullTerminatedStringCopy(const char* str, unsigned int size) {
+    char* ntstring = (char*)malloc(size+1);
+    if (ntstring != NULL) {
+        memcpy(ntstring, str, size);
+        ntstring[size] = '\0';
+    }
+    return ntstring;
+}
+
+// NOTE return value is malloc'd so have to free it in calling function after use
+char* lookup(KVPAIR* head, long key) {
+    KVPAIR* current = head;
+    while (current != NULL) {
+        if (current->key == key) {
+            return makeNullTerminatedStringCopy(current->val, current->size);
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// version 2 doesn't malloc any memory
+char* lookup2(KVPAIR* head, long key, char* result, unsigned int max_size) {
+    KVPAIR* current = head;
+    while (current != NULL) {
+        if (current->key == key) {
+            unsigned int parsed_size = current->size;
+            if (parsed_size >= max_size) {
+                parsed_size = max_size - 1; // (null terminator)
+            }
+            memcpy(result, current->val, parsed_size);
+            result[parsed_size] = '\0';
+            return result;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
 /****************************************************************************
 *
 * End of Assignment code
@@ -231,6 +270,26 @@ int main() {
 
     // check our linked list
     printKeyValuePairs(linked_list);
+
+    // test lookup
+    char* result = lookup(linked_list, 2);
+    if (result != NULL) {
+        printf("key 2 value: [%s]\n", result);
+        // lookup allocates memory to create a null terminated copy of string value
+        free(result);
+    }
+    char str[32];
+    result = lookup2(linked_list, 2, str, 32);
+    if (result != NULL) {
+        printf("key 2 value: [%s]\n", result);
+    }
+    // check truncation works correctly for lookup2
+    char str2[3];
+    result = lookup2(linked_list, 2, str2, 3);
+    if (result != NULL) {
+        printf("key 2 value: [%s]\n", result);
+    }
+
 
     // Free the memory
     freeKeyValueLinkedList(linked_list);
